@@ -126,7 +126,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="5beijing.jpg" width="16" height="16"/>
+        <image name="5beijing.jpg" width="640" height="1136"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

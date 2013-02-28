@@ -24,13 +24,12 @@
     int alarmNewDay;
     int currentHour;
     int currentMinute;
+    BOOL firstOcdOn;
+    CGFloat index;
     CGFloat _deltaAngle;
     CGFloat currentAngle;
     SystemSoundID shortSound;
     SystemSoundID alarmSound;
-//    CGFloat currentALarmTime;
-//    CGFloat lastAlarmTime;
-//    CGFloat deltaAlarmTime;
     UILocalNotification *localNotif;
     UILocalNotification *invisibleNotiOne;
     UILocalNotification *invisibleNotiTwo;
@@ -72,18 +71,17 @@
         isAfternoon = 1;
     else
         isAfternoon = 0;
-    if([ocdOnString isEqualToString:@"YES"])
+    if([ocdOnString isEqualToString:@"YES"]){
         _ocdOn = YES;
-    else
+        firstOcdOn = YES;
+    }
+    else{
         _ocdOn = NO;
+        firstOcdOn = NO;
+    }
     if(dictionary != nil && radiansString != nil){
         currentAngle = radiansString.floatValue;
         [self initDigitalAlarmViews];
-//        CGFloat lastTime = [self convertRadiansToTime2:currentAngle direction:-1];
-//        lastAlarmTime = lastTime;
-//        deltaAlarmTime = lastAlarmTime - TOTAL_TIME;
-//        [self setDigitalALarm:lastTime];
-//        CGFloat lastTime = [self convertRadiansToTimeWithNoCalibrate:[self calibrateRadians:currentAngle]];
         [self setDigitalAlarmViaImage:[self convertRadiansToTimeWithNoCalibrate:[self calibrateRadians:currentAngle]]];
         [self setAlarmHandlerImage];
         CGAffineTransform newTransform3 = CGAffineTransformRotate(_container.transform, currentAngle + M_PI);
@@ -172,8 +170,13 @@
     if(recognizer.state == UIGestureRecognizerStateBegan){
         _deltaAngle = 0;
         previousPoint = [recognizer locationInView:recognizer.view.superview.superview];
-//        currentAngle = atan2(_container.transform.b, _container.transform.a) + M_PI;
-//        deltaAlarmTime = lastAlarmTime = [self convertRadiansToTime2:currentAngle direction:0];
+        if(_ocdOn && firstOcdOn){
+//            CGPoint point = [recognizer locationInView:recognizer.view.superview.superview];
+//            CGPoint center = _container.layer.position;
+//            CGFloat currentAngle = atan2(point.y - center.y, point.x - center.x);
+            index = currentAngle / (M_PI * 2 / 144);
+        }
+        
     }else if(recognizer.state == UIGestureRecognizerStateEnded){
         if(recognizer.view.tag == ALARMHANDLER_TAG){
             CGFloat radians = atan2(_container.transform.b, _container.transform.a) + M_PI;
@@ -188,18 +191,21 @@
                 float prevAngle = atan2(previousPoint.y - center.y, previousPoint.x - center.x);
                 float curAngle= atan2(curPoint.y - center.y, curPoint.x - center.x);
                 float angleDifference = curAngle - prevAngle;
-                int direction;
-                if(angleDifference > 0)
-                    direction = 0;
-                else
-                    direction = 1;
                 if(_ocdOn){
                     _deltaAngle += angleDifference;
                     if(_deltaAngle > (M_PI * 2 / 144) || _deltaAngle < -(M_PI * 2 / 144)){
                         if (_deltaAngle > 0) {
-                            angleDifference = (int)(angleDifference / (M_PI * 2 / 144) + 1) * (M_PI * 2 / 144);
+                            if(firstOcdOn){
+                                angleDifference = ((int)index + 1 - index) * (M_PI * 2 / 144);
+                                firstOcdOn = NO;
+                            }else
+                                angleDifference = (int)(angleDifference / (M_PI * 2 / 144) + 1) * (M_PI * 2 / 144);
                         }else{
-                            angleDifference = (int)(angleDifference / (M_PI * 2 / 144) - 1) * (M_PI * 2 / 144);
+                            if(firstOcdOn){
+                                angleDifference = ((int)index - index) * (M_PI * 2 / 144);
+                                firstOcdOn = NO;
+                            }else
+                                angleDifference = (int)(angleDifference / (M_PI * 2 / 144) - 1) * (M_PI * 2 / 144);
                         }
                         _deltaAngle = 0;
                     }else{
@@ -210,12 +216,9 @@
                     AudioServicesPlaySystemSound(shortSound);
                     CGAffineTransform newTransform3 = CGAffineTransformRotate(_container.transform, angleDifference);
                     _container.transform = newTransform3;
-                    //Use audio services to play the sound
+  
                     currentAngle = atan2(_container.transform.b, _container.transform.a) + M_PI;
-//                    NSLog(@"angle: %f, %f, %f, %f,%f,%f,%f",currentAngle, _container.transform.a,_container.transform.b, _container.transform.c,_container.transform.d,_container.transform.tx, _container.transform.ty);
-                    NSLog(@"%f,%f",currentAngle, [self calibrateRadians:currentAngle]);
-//                    CGFloat currentTime = [self convertRadiansToTime2:currentAngle direction:direction];
-//                    [self setDigitalALarm:currentTime];
+//                    NSLog(@"%f,%f",currentAngle, [self calibrateRadians:currentAngle]);
                     CGFloat currentTime = [self convertRadiansToTimeWithNoCalibrate:[self calibrateRadians:currentAngle]];
                     [self setDigitalAlarmViaImage:currentTime];
                 }
@@ -530,55 +533,6 @@
     float xDistence = point1.x - point2.x;
     return yDistence / sqrt(yDistence * yDistence + xDistence * xDistence);
 }
-
-/*
--(CGFloat)convertRadiansToTime2:(CGFloat)radians direction:(int)direction{
-        CGFloat currentTime = radians / (2 * M_PI) * TOTAL_TIME;
-        currentTime -= (720 - 272 - 360);
-        if (currentTime < 0) {
-            currentTime += TOTAL_TIME;
-        }
-        if(isAfternoon)
-            currentTime += TOTAL_TIME;
-        if(direction == 0){//clockwise
-            if(currentTime > lastAlarmTime)
-                deltaAlarmTime += (currentTime - lastAlarmTime);
-            if (currentTime < lastAlarmTime) {
-                deltaAlarmTime += TOTAL_TIME - lastAlarmTime + currentTime;
-            }
-        }else if(direction == 1){//anti-clockwise
-            if(currentTime > lastAlarmTime)
-                deltaAlarmTime -= (TOTAL_TIME - currentTime + lastAlarmTime);
-            if (currentTime < lastAlarmTime) {
-                deltaAlarmTime -= (lastAlarmTime - currentTime);
-            }
-        }else if(direction == -1){
-            return currentTime;
-        }
-        
-        if(deltaAlarmTime >= TOTAL_TIME){
-            deltaAlarmTime = 0;
-            if(isAfternoon == 0){
-                currentTime += TOTAL_TIME;
-                isAfternoon = 1;
-            }else{
-                isAfternoon = 0;
-                currentTime -= TOTAL_TIME;
-            }
-        }else if(deltaAlarmTime <= 0){
-            deltaAlarmTime = 0;
-            if (isAfternoon == 0) {
-                currentTime += TOTAL_TIME;
-                isAfternoon = 1;
-            }else{
-                isAfternoon = 0;
-                currentTime -= TOTAL_TIME;
-            }
-        }
-        lastAlarmTime = currentTime;
-        return currentTime;
-}
-*/
 -(CGFloat)convertRadiansToTimeWithNoCalibrate:(CGFloat)radians{
     return radians / (2 * M_PI) * TOTAL_TIME;
 }
@@ -640,6 +594,7 @@
 
 -(void)setOcdON:(BOOL)ocdOn{
     _ocdOn = ocdOn;
+    firstOcdOn = _ocdOn;
 }
 
 

@@ -132,6 +132,8 @@
 		746B722416DF4A7D005B5C34 /* short.caf in Resources */ = {isa = PBXBuildFile; fileRef = 746B721D16DF4A7D005B5C34 /* short.caf */; };
 		746B722516DF4A7D005B5C34 /* shortSound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 746B721E16DF4A7D005B5C34 /* shortSound.wav */; };
 		746B722616DF4A7D005B5C34 /* shortSound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 746B721E16DF4A7D005B5C34 /* shortSound.wav */; };
+		748DD56916DF835F00ADC709 /* ant.png in Resources */ = {isa = PBXBuildFile; fileRef = 748DD56816DF835F00ADC709 /* ant.png */; };
+		748DD56B16DF83DF00ADC709 /* minute.png in Resources */ = {isa = PBXBuildFile; fileRef = 748DD56A16DF83DF00ADC709 /* minute.png */; };
 		749538AA16CBE1EC009EA265 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 749538A916CBE1EC009EA265 /* UIKit.framework */; };
 		749538AC16CBE1EC009EA265 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 749538AB16CBE1EC009EA265 /* Foundation.framework */; };
 		749538AE16CBE1EC009EA265 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 749538AD16CBE1EC009EA265 /* CoreGraphics.framework */; };
@@ -235,6 +237,8 @@
 		746B721C16DF4A7D005B5C34 /* music.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = music.wav; sourceTree = "<group>"; };
 		746B721D16DF4A7D005B5C34 /* short.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = short.caf; sourceTree = "<group>"; };
 		746B721E16DF4A7D005B5C34 /* shortSound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = shortSound.wav; sourceTree = "<group>"; };
+		748DD56816DF835F00ADC709 /* ant.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ant.png; sourceTree = "<group>"; };
+		748DD56A16DF83DF00ADC709 /* minute.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = minute.png; sourceTree = "<group>"; };
 		749538A616CBE1EC009EA265 /* KillAntsAlarm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KillAntsAlarm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		749538A916CBE1EC009EA265 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		749538AB16CBE1EC009EA265 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -435,6 +439,8 @@
 		746B71BB16DF4A38005B5C34 /* Clock */ = {
 			isa = PBXGroup;
 			children = (
+				748DD56816DF835F00ADC709 /* ant.png */,
+				748DD56A16DF83DF00ADC709 /* minute.png */,
 				746B71BC16DF4A38005B5C34 /* alarmHandler.png */,
 				746B71BD16DF4A38005B5C34 /* alarmHandlerGray.png */,
 				746B71BE16DF4A38005B5C34 /* clock.png */,
@@ -707,6 +713,8 @@
 				746B722116DF4A7D005B5C34 /* music.wav in Resources */,
 				746B722316DF4A7D005B5C34 /* short.caf in Resources */,
 				746B722516DF4A7D005B5C34 /* shortSound.wav in Resources */,
+				748DD56916DF835F00ADC709 /* ant.png in Resources */,
+				748DD56B16DF83DF00ADC709 /* minute.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

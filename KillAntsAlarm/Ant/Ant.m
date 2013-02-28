@@ -69,8 +69,8 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     [UIImageView animateWithDuration:0.5 delay:0.0f options:UIViewAnimationOptionCurveLinear | UIViewAnimationOptionAllowUserInteraction animations:^{
         @synchronized(self){
             int x;
-            CGFloat angle = -90 + rand() % 180;
-            int base = 10 - abs(angle)/ 91 * 10;
+            CGFloat angle = -45 + rand() % 90;
+            int base = 20 - abs(angle)/ 46 * 20;
             x = 20 + abs(rand() % base);
             
             CGAffineTransform newTransform3 = CGAffineTransformRotate(_antImageView.transform, radians(angle));
@@ -100,7 +100,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                 CGFloat deltaY = 30 + rand() % (int)height - 60 - point.y;
                 CGPoint center = CGPointMake(_antImageView.center.x,_antImageView.center.y + deltaY);
                 _antImageView.center = center;
-                NSLog(@"frame: %@, %@",[NSValue valueWithCGPoint:_antImageView.center],[NSValue valueWithCGPoint:_antImageView.frame.origin]);
+//                NSLog(@"frame: %@, %@",[NSValue valueWithCGPoint:_antImageView.center],[NSValue valueWithCGPoint:_antImageView.frame.origin]);
             }
 //            
 //            if (point.x < 0 || point.x + frame.size.width > 320 || point.y < 0 || point.y + frame.size.height > height) {
