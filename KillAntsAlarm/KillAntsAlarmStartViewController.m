@@ -19,6 +19,8 @@
 @synthesize delegate = _delegate;
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
+    [self.view setBackgroundColor:[UIColor greenColor]];
+    
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization

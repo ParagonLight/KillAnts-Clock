@@ -21,7 +21,6 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     for(int i = 0; i < 9; i ++){
         [array addObject:[UIImage imageNamed:[NSString stringWithFormat:@"ant%d.png",i]]];
     }
-    int randomWidth = 0 + rand() % (320 - 0);
     int randomHeight;
     if (iPhone5) {
         randomHeight = 0 + rand() % (568 - 0);
@@ -100,16 +99,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
                 CGFloat deltaY = 30 + rand() % (int)height - 60 - point.y;
                 CGPoint center = CGPointMake(_antImageView.center.x,_antImageView.center.y + deltaY);
                 _antImageView.center = center;
-//                NSLog(@"frame: %@, %@",[NSValue valueWithCGPoint:_antImageView.center],[NSValue valueWithCGPoint:_antImageView.frame.origin]);
             }
-//            
-//            if (point.x < 0 || point.x + frame.size.width > 320 || point.y < 0 || point.y + frame.size.height > height) {
-//                CGFloat deltaX = 30 + rand() % 260;
-//                CGFloat deltaY = 30 + rand() % (int)height - 60;
-//                CGPoint center = CGPointMake(frame.origin.x + _antImageView.frame.size.width / 2, frame.origin.y + _antImageView.frame.size.height / 2);
-//                _antImageView.center = center;
-//                NSLog(@"frame: %@, %@",[NSValue valueWithCGPoint:_antImageView.center],[NSValue valueWithCGPoint:_antImageView.frame.origin]);
-//            }
             [self animateMethod];
         }
     }];
