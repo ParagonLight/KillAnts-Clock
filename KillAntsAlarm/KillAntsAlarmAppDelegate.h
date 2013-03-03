@@ -16,7 +16,7 @@
 #define ALARMHANDLER_TAG 1
 #define MIN_REVEAL_DELTA 100
 #define MIN_DELTA 5
-#define MAX_DELTA 150
+#define MAX_DELTA 160
 #define INTRO_PAGES 2
 #define ANT_NUM 15
 

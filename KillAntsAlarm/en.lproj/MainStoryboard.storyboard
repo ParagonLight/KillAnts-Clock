@@ -75,7 +75,7 @@
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <gestureRecognizers/>
                             </imageView>
-                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Ek6-dD-TSC">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="Ek6-dD-TSC">
                                 <rect key="frame" x="124" y="395" width="73" height="44"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
@@ -128,6 +128,39 @@
     <resources>
         <image name="5beijing.jpg" width="640" height="1136"/>
     </resources>
+    <classes>
+        <class className="ClockView" superclassName="UIView">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/ClockView.h"/>
+        </class>
+        <class className="KillAntsAlarmIntroductionViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/KillAntsAlarmIntroductionViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="pageControl" candidateClass="UIPageControl"/>
+                <relationship kind="outlet" name="scrollView" candidateClass="UIScrollView"/>
+            </relationships>
+        </class>
+        <class className="KillAntsAlarmOCDModel" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/KillAntsAlarmOCDModel.h"/>
+            <relationships>
+                <relationship kind="outlet" name="backgroundImageView" candidateClass="UIImageView"/>
+            </relationships>
+        </class>
+        <class className="KillAntsAlarmStartViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/KillAntsAlarmStartViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="backgroundImageView" candidateClass="UIImageView"/>
+            </relationships>
+        </class>
+        <class className="KillAntsAlarmViewController" superclassName="UIViewController">
+            <source key="sourceIdentifier" type="project" relativePath="./Classes/KillAntsAlarmViewController.h"/>
+            <relationships>
+                <relationship kind="outlet" name="alarmHandlerImageView" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="backgroundImageView" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="clockView" candidateClass="ClockView"/>
+                <relationship kind="outlet" name="container" candidateClass="UIView"/>
+            </relationships>
+        </class>
+    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

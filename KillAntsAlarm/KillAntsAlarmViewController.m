@@ -90,6 +90,7 @@
         if([isGray isEqualToString:@"NO"]){
             alarmHandlerTouchedFlag = TRUE;
             _digitalAlarmView.alpha = 1;
+            _antImageView.alpha = 1;
             _alarmHandlerImageView.image = _alarmHandler;
         }
     }else{
@@ -135,6 +136,7 @@
         if(!alarmHandlerTouchedFlag){
             alarmHandlerTouchedFlag = YES;
             _digitalAlarmView.alpha = 1;
+            _antImageView.alpha = 1;
             _alarmHandlerImageView.image = _alarmHandler;
             [self saveElementsToAlarmHandlerFile:@"NO" forKey:@"isAlarmHandlerGray"];
         }else{
@@ -142,6 +144,7 @@
             if(_player.playing)
                 [_player stop];
             _digitalAlarmView.alpha = 0.3;
+            _antImageView.alpha = 0.3;
             _alarmHandlerImageView.image = _alarmHandlerGray;
             [self saveElementsToAlarmHandlerFile:@"YES" forKey:@"isAlarmHandlerGray"];
             if(localNotif){
@@ -351,8 +354,8 @@
     //set lineImage
     UIImageView *lineImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"line.png"]];
     CGRect frame = lineImageView.frame;
-    frame.size.width /= 2.3;
-    frame.size.height /= 2.3;
+    frame.size.width /= 2;
+    frame.size.height /= 2;
     frame.origin.x = (self.view.frame.size.width - frame.size.width) / 2;
     if(iPhone5)
         frame.origin.y = 80;
@@ -373,9 +376,9 @@
     _digitalAlarmView = [[UIView alloc] init];
     _digitalAlarmView.alpha = 0.3;
     frame.origin = lineImageView.frame.origin;
-    frame.origin.x += 85;
+    frame.origin.x += 100;
     frame.origin.y -= 30;
-    frame.size.width = frame.size.width * 4 + pointImage.size.width;
+    frame.size.width = frame.size.width * 4 + pointImage.size.width + 20;
     frame.size.height = 200;
     NSLog(@"%f",frame.size.width);
     [_digitalAlarmView setFrame:frame];
@@ -389,9 +392,10 @@
         if(i == 2){
             numberImage = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"point.png"]];
             frame = numberImage.frame;
-            frame.size.width /= 2;
-            frame.size.height /= 2;
-            frame.origin.y += 5;
+            frame.size.width /= 2.3;
+            frame.size.height /= 2.3;
+            frame.origin.y += 16;
+            positionValue += 7;
         }else{
             numberImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 94/2, 121/2)];
             numberImage.tag = i;
@@ -400,6 +404,9 @@
         frame.origin.x = positionValue;
         [numberImage setFrame:frame];
         positionValue += frame.size.width - 13;
+        if(i == 2){
+            positionValue += 10;
+        }
         [_digitalAlarmView addSubview:numberImage];
     }
     
@@ -413,12 +420,13 @@
     //set antImage
     _antImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"ant.png"]];
     _antImageView.tag = ANTIMAGE_TAG;
+    _antImageView.alpha = 0.3;
     _antImageView.userInteractionEnabled = YES;
     frame = _antImageView.frame;
-    frame.origin.y = lineImageView.frame.origin.y - 20;
-    frame.origin.x = lineImageView.frame.origin.x + 40;
-    frame.size.height /= 2;
-    frame.size.width /= 2;
+    frame.origin.y = lineImageView.frame.origin.y - 8;
+    frame.origin.x = lineImageView.frame.origin.x + 56;
+    frame.size.height /= 2.3;
+    frame.size.width /= 2.3;
     [_antImageView setFrame:frame];
     [_antImageView setCenter:CGPointMake(_antImageView.frame.origin.x + _antImageView.frame.size.width/2, _antImageView.frame.origin.y + _antImageView.frame.size.height/2)];
     [_antImageView.layer setAnchorPoint:CGPointMake(0.5, 0.5)];
