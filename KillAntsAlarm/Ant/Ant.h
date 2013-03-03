@@ -20,10 +20,12 @@
     CGSize size;
     CGFloat lastAngle;
     CGContextRef context;
+    BOOL dead;
 }
 @property (nonatomic, strong) UITapGestureRecognizer *tapGestureRecognizer;
 @property (nonatomic, strong) id <AntDelegate> delegate;
 @property (nonatomic, strong) UIImageView *antImageView;
+@property (nonatomic, strong) UIImage *antDeadImage; 
 -(id)initAnt:(NSInteger)antNo;
 -(void)animateMethod;
 

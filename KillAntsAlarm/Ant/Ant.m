@@ -12,7 +12,7 @@
 @synthesize antImageView = _antImageView;
 @synthesize tapGestureRecognizer = _tapGestureRecognizer;
 @synthesize delegate = _delegate;
-
+@synthesize antDeadImage = _antDeadImage;
 static inline double radians (double degrees) {return degrees * M_PI/180;}
 
 -(id)initAnt:(NSInteger)antNo{
@@ -27,12 +27,12 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     }else{
         randomHeight = 0 + rand() % (480 - 0);
     }
-    
+    dead = FALSE;
     CGRect screenBound = [[UIScreen mainScreen] bounds];
     
     CGRect frame = CGRectMake(screenBound.size.width/2, screenBound.size.height/2, 39, 39);
     size = frame.size;
-
+    _antDeadImage = [UIImage imageNamed:@"antDead.png"];
     NSArray *antAnimationArray = [NSArray arrayWithArray:array];
     _antImageView = [[UIImageView alloc]initWithFrame:frame];
     _antImageView.backgroundColor = [UIColor clearColor];
@@ -51,8 +51,14 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
 
 -(void)tapAnt:(UITapGestureRecognizer *)recognizer{
     [_antImageView stopAnimating];
-    [_antImageView removeFromSuperview];
-    [_delegate countAliveAnt];
+    dead = TRUE;
+    _antImageView.image = _antDeadImage;
+    [UIImageView animateWithDuration:1 animations:^{
+        _antImageView.alpha = 0;
+    } completion:^(BOOL finished){
+        [_antImageView removeFromSuperview];
+        [_delegate countAliveAnt];
+    }];
 }
 
 -(CGFloat)calibrateRadians:(CGFloat)radians{
@@ -79,7 +85,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
             [_antImageView setTransform:newTransform3];
         }
     } completion:^(BOOL finished){
-        if (finished){
+        if (finished && !dead){
             CGPoint point = _antImageView.frame.origin;
             CGRect frame = _antImageView.frame;
             CGFloat height;
