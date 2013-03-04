@@ -16,13 +16,18 @@
 @property (strong, nonatomic) IBOutlet UIImageView *alarmHandlerImageView;
 @property (strong, nonatomic) UIImage *alarmHandlerGray;
 @property (strong, nonatomic) UIImage *alarmHandler;
+@property (strong, nonatomic) UIImage *ocdAntImage;
+@property (strong, nonatomic) UIImage *ocdBall;
+@property (strong, nonatomic) UIImage *antImage;
 @property (strong, nonatomic) IBOutlet UIView *container;
 @property (strong, nonatomic) NSArray *numberImages;
 @property (strong, nonatomic) UIImageView *antImageView;
+@property (strong, nonatomic) UIImageView *ocdBallImageView;
 @property (strong, nonatomic) UIView *digitalAlarmView;
 @property (strong, nonatomic) IBOutlet UIImageView *backgroundImageView;
 @property (strong, nonatomic) UITapGestureRecognizer *tapGestureRecognizer;
 @property (strong, nonatomic) UIPanGestureRecognizer *panGestureRecognizer;
+@property (strong, nonatomic) UITapGestureRecognizer *antTapGestureRecognizer;
 @property (strong, nonatomic) AVAudioPlayer *player;
 -(void)setOcdON:(BOOL)ocdOn;
 -(void)startAlarm;

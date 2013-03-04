@@ -24,12 +24,14 @@
     int alarmNewDay;
     int currentHour;
     int currentMinute;
+    CGFloat lineOriginY;
     BOOL firstOcdOn;
     CGFloat index;
     CGFloat _deltaAngle;
     CGFloat currentAngle;
     SystemSoundID shortSound;
     SystemSoundID alarmSound;
+    SystemSoundID ocdSound;
     UILocalNotification *localNotif;
     UILocalNotification *invisibleNotiOne;
     UILocalNotification *invisibleNotiTwo;
@@ -46,9 +48,14 @@
 @synthesize alarmHandlerImageView = _alarmHandlerImageView;
 @synthesize alarmHandler = _alarmHandler;
 @synthesize alarmHandlerGray = _alarmHandlerGray;
+@synthesize ocdAntImage = _ocdAntImage;
+@synthesize ocdBall = _ocdBall;
+@synthesize antImage = _antImage;
+@synthesize ocdBallImageView = _ocdBallImageView;
 @synthesize backgroundImageView = _backgroundImageView;
 @synthesize tapGestureRecognizer = _tapGestureRecognizer;
 @synthesize panGestureRecognizer = _panGestureRecognizer;
+@synthesize antTapGestureRecognizer = _antTapGestureRecognizer;
 @synthesize antImageView = _antImageView;
 @synthesize player = _player;
 - (void)viewDidLoad
@@ -91,6 +98,7 @@
             alarmHandlerTouchedFlag = TRUE;
             _digitalAlarmView.alpha = 1;
             _antImageView.alpha = 1;
+            _ocdBallImageView.alpha = 1;
             _alarmHandlerImageView.image = _alarmHandler;
         }
     }else{
@@ -100,8 +108,11 @@
     
     _tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(toggleALarmHandler:)];
     _panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(moveAlarmHandler:)];
+    _antTapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapAnt:)];
+    _antTapGestureRecognizer.delegate = self;
     _tapGestureRecognizer.delegate = self;
     _panGestureRecognizer.delegate = self;
+    [_antImageView addGestureRecognizer:_antTapGestureRecognizer];
     [_alarmHandlerImageView addGestureRecognizer:_tapGestureRecognizer];
     [_alarmHandlerImageView addGestureRecognizer:_panGestureRecognizer];
 
@@ -110,6 +121,11 @@
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
     [clockView start];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [clockView updateClock:nil];
+    [super viewWillAppear:animated];
 }
 
 - (void)viewDidDisappear:(BOOL)animated{
@@ -123,6 +139,8 @@
     // Dispose of any resources that can be recreated.
 }
 
+
+
 -(void)initOcdTime{
     CGFloat radians = currentAngle;
     [self initDigitalAlarmViews];
@@ -131,12 +149,57 @@
     [self setAlarmHandlerImage];
 }
 
+-(void)tapAnt:(UITapGestureRecognizer *)recognizer{
+    if(_ocdOn){
+        [self setOcdON:NO];
+        [UIView animateWithDuration:1
+                              delay:0
+                            options:UIViewAnimationOptionCurveEaseOut
+                         animations:^{
+                             _antImageView.image = _antImage;
+                             CGRect frame = _ocdBallImageView.frame;
+                             frame.origin.y = -20;
+                             [_ocdBallImageView setFrame:frame];
+//                             _ocdBallImageView.transform = CGAffineTransformMakeTranslation(0, -68);
+                         } completion:^(BOOL finished){
+                             _ocdBallImageView.hidden = YES;
+                         }];
+    }else{
+        _ocdBallImageView.hidden = NO;
+        [self setOcdON:YES];
+        [UIView animateWithDuration:1
+                              delay:0
+                            options:UIViewAnimationOptionCurveEaseIn
+                         animations:^{
+                             CGRect frame = _ocdBallImageView.frame;
+                             frame.origin.y = lineOriginY - 1;
+                             [_ocdBallImageView setFrame:frame];
+//                             _ocdBallImageView.transform = CGAffineTransformMakeTranslation(0, 0);
+                         } completion:^(BOOL finished){
+                             AudioServicesPlaySystemSound(ocdSound);
+                             _antImageView.image = _ocdAntImage;
+                         }];
+    }
+    KillAntsAlarmAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    NSMutableDictionary *dictionary = [appDelegate getInfoFromFile:@"alarmHandler"];
+    if (!dictionary) {
+        dictionary = [[NSMutableDictionary alloc] init];
+    }
+    if(_ocdOn)
+        [dictionary setObject:@"YES" forKey:@"ocdOn"];
+    else
+        [dictionary setObject:@"NO" forKey:@"ocdOn"];
+    [appDelegate saveInfoToFile:dictionary infoType:@"alarmHandler"];
+    
+}
+
 -(void)toggleALarmHandler:(UITapGestureRecognizer *)recognizer{
     if(recognizer.state == UIGestureRecognizerStateEnded){
         if(!alarmHandlerTouchedFlag){
             alarmHandlerTouchedFlag = YES;
             _digitalAlarmView.alpha = 1;
             _antImageView.alpha = 1;
+            _ocdBallImageView.alpha = 1;
             _alarmHandlerImageView.image = _alarmHandler;
             [self saveElementsToAlarmHandlerFile:@"NO" forKey:@"isAlarmHandlerGray"];
         }else{
@@ -145,6 +208,7 @@
                 [_player stop];
             _digitalAlarmView.alpha = 0.3;
             _antImageView.alpha = 0.3;
+            _ocdBallImageView.alpha = 0.3;
             _alarmHandlerImageView.image = _alarmHandlerGray;
             [self saveElementsToAlarmHandlerFile:@"YES" forKey:@"isAlarmHandlerGray"];
             if(localNotif){
@@ -245,6 +309,14 @@
     
     //Use audio sevices to create the sound
     AudioServicesCreateSystemSoundID((__bridge CFURLRef)shortSoundFilePath, &shortSound);
+    
+    NSString *ocdSoundPath = [NSString stringWithFormat:@"%@%@", [[NSBundle mainBundle] resourcePath], @"/antHit.mp3"];
+    NSURL *ocdSoundFilePath = [NSURL fileURLWithPath:ocdSoundPath isDirectory:NO];
+    
+    //Use audio sevices to create the sound
+    AudioServicesCreateSystemSoundID((__bridge CFURLRef)ocdSoundFilePath, &ocdSound);
+    
+    
     
     AudioSessionInitialize (NULL, NULL, NULL, NULL);
     AudioSessionSetActive(true);
@@ -414,7 +486,26 @@
     [self.view addSubview:_digitalAlarmView];
     
     //set antImage
-    _antImageView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"ant.png"]];
+    _ocdAntImage = [UIImage imageNamed:@"antOcd.png"];
+    _antImage = [UIImage imageNamed:@"ant.png"];
+    _ocdBall = [UIImage imageNamed:@"ocd.png"];
+    _ocdBallImageView = [[UIImageView alloc] initWithImage:_ocdBall];
+    frame = _ocdBallImageView.frame;
+    frame.origin.x = lineImageView.frame.origin.x + 73;
+    frame.size.width /= 2;
+    frame.size.height /= 2;
+    [self.view addSubview:_ocdBallImageView];
+    lineOriginY = lineImageView.frame.origin.y;
+    if(_ocdOn){
+        _antImageView = [[UIImageView alloc] initWithImage:_ocdAntImage];
+        frame.origin.y = lineImageView.frame.origin.y - 1;
+    }else{
+        _antImageView = [[UIImageView alloc] initWithImage:_antImage];
+        _ocdBallImageView.hidden = YES;
+        frame.origin.y = 0;
+    }
+    [_ocdBallImageView setFrame:frame];
+    
     _antImageView.tag = ANTIMAGE_TAG;
     _antImageView.alpha = 0.3;
     _antImageView.userInteractionEnabled = YES;
@@ -553,7 +644,7 @@
     return currentTime;
 }
 
-
+/*
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event{
     touches = [event allTouches];
     UITouch *touch = [[event allTouches] anyObject];
@@ -582,6 +673,7 @@
         [self moveAntImage:CGPointMake(0,0) animateWithDuration:0.5 antImageView:(UIImageView *)touch.view completion:nil];
     }
 }
+ */
 
 -(void)moveAntImage:(CGPoint)currentPoint animateWithDuration:(CGFloat)duration antImageView:(UIImageView *)antImageView completion:(void (^)(BOOL finished))completion{
     @synchronized(self){

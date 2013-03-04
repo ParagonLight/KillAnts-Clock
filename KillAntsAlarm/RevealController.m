@@ -59,12 +59,12 @@
  */
 - (BOOL)revealController:(ZUUIRevealController *)revealController shouldRevealRearViewController:(UIViewController *)rearViewController
 {
-	return YES;
+	return NO;
 }
 
 - (BOOL)revealController:(ZUUIRevealController *)revealController shouldHideRearViewController:(UIViewController *)rearViewController 
 {
-	return YES;
+	return NO;
 }
 
 
