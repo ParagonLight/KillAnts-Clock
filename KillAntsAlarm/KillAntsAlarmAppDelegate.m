@@ -93,6 +93,8 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
+    KillAntsAlarmViewController *frontViewcontroller = _viewController.frontViewController;
+    [frontViewcontroller setAlarm:YES];
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
 

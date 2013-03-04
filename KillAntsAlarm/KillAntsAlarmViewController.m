@@ -150,6 +150,7 @@
 }
 
 -(void)tapAnt:(UITapGestureRecognizer *)recognizer{
+    _antImageView.userInteractionEnabled = NO;
     if(_ocdOn){
         [self setOcdON:NO];
         [UIView animateWithDuration:1
@@ -163,11 +164,12 @@
 //                             _ocdBallImageView.transform = CGAffineTransformMakeTranslation(0, -68);
                          } completion:^(BOOL finished){
                              _ocdBallImageView.hidden = YES;
+                             _antImageView.userInteractionEnabled = YES;
                          }];
     }else{
         _ocdBallImageView.hidden = NO;
         [self setOcdON:YES];
-        [UIView animateWithDuration:1
+        [UIView animateWithDuration:0.5
                               delay:0
                             options:UIViewAnimationOptionCurveEaseIn
                          animations:^{
@@ -178,6 +180,7 @@
                          } completion:^(BOOL finished){
                              AudioServicesPlaySystemSound(ocdSound);
                              _antImageView.image = _ocdAntImage;
+                             _antImageView.userInteractionEnabled = YES;
                          }];
     }
     KillAntsAlarmAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
@@ -247,9 +250,9 @@
     }else if(recognizer.state == UIGestureRecognizerStateEnded){
         if(recognizer.view.tag == ALARMHANDLER_TAG){
             CGFloat radians = atan2(_container.transform.b, _container.transform.a) + M_PI;
-            CGFloat currentTime = [self convertRadiansToTimeWithNoCalibrate:[self calibrateRadians:radians]];
+//            CGFloat currentTime = [self convertRadiansToTimeWithNoCalibrate:[self calibrateRadians:radians]];
             [self saveElementsToAlarmHandlerFile:[NSString stringWithFormat:@"%f",radians] forKey:@"lastPosition"];
-            [self setAlarm:currentTime];
+            [self setAlarm:NO];
         }
     }else if(recognizer.state == UIGestureRecognizerStateChanged){
         if(recognizer.view.tag == ALARMHANDLER_TAG && alarmHandlerTouchedFlag){
@@ -260,23 +263,29 @@
                 float angleDifference = curAngle - prevAngle;
                 if(_ocdOn){
                     _deltaAngle += angleDifference;
-                    if(_deltaAngle > (M_PI * 2 / 144) || _deltaAngle < -(M_PI * 2 / 144)){
-                        if (_deltaAngle > 0) {
-                            if(firstOcdOn){
-                                angleDifference = ((int)index + 1 - index) * (M_PI * 2 / 144);
-                                firstOcdOn = NO;
-                            }else
-                                angleDifference = (int)(angleDifference / (M_PI * 2 / 144) + 1) * (M_PI * 2 / 144);
+                    if(firstOcdOn){
+                        if(_deltaAngle >= ((int)index + 1 - index) * (M_PI * 2 / 144)){
+                            firstOcdOn = NO;
+                            _deltaAngle = 0;
+                            angleDifference = ((int)index + 1 - index) * (M_PI * 2 / 144);
+                        }else if(_deltaAngle <= ((int)index - index) * (M_PI * 2 / 144)){
+                            angleDifference = ((int)index - index) * (M_PI * 2 / 144);
+                            _deltaAngle = 0;
+                            firstOcdOn = NO;
                         }else{
-                            if(firstOcdOn){
-                                angleDifference = ((int)index - index) * (M_PI * 2 / 144);
-                                firstOcdOn = NO;
-                            }else
-                                angleDifference = (int)(angleDifference / (M_PI * 2 / 144) - 1) * (M_PI * 2 / 144);
+                            angleDifference = 0;
                         }
-                        _deltaAngle = 0;
                     }else{
-                        angleDifference = 0;
+                        if(_deltaAngle > (M_PI * 2 / 144) || _deltaAngle < -(M_PI * 2 / 144)){
+                            if (_deltaAngle > 0) {
+                                angleDifference = (int)(angleDifference / (M_PI * 2 / 144) + 1) * (M_PI * 2 / 144);
+                            }else{
+                                angleDifference = (int)(angleDifference / (M_PI * 2 / 144) - 1) * (M_PI * 2 / 144);
+                            }
+                            _deltaAngle = 0;
+                        }else{
+                            angleDifference = 0;
+                        }
                     }
                 }
                 if(angleDifference != 0){
@@ -368,19 +377,33 @@
     return [calendar dateFromComponents:dateComponents];
 }
 
--(void)setAlarm:(CGFloat)dateInFloat{
-    NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:[NSDate date]];
-    int minute = [dateComponents minute];
-    int hour = [dateComponents hour];
-    
-    if(alarmHour >= hour && alarmMinute > minute){
-        alarmNewDay = 0;
-    }else
-        alarmNewDay = 1;
-    
-    NSDate *notificationDate = [self getDate:alarmNewDay hour:alarmHour minute:alarmMinute second:0];
-    NSDate *invisibleNotiOneDate = [self getDate:alarmNewDay hour:alarmHour minute:alarmMinute second:30];
-    NSDate *invisibleNotiTwoDate = [self getDate:alarmNewDay hour:alarmHour minute:alarmMinute + 1 second:0];
+-(void)setAlarm:(BOOL)now{
+    NSDate *invisibleNotiTwoDate;
+    NSDate *invisibleNotiOneDate;
+    NSDate *notificationDate;
+    if (now && !_player.playing) {
+        return;
+    }else if(now && _player.playing){
+        NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:[NSDate date]];
+        int minute = [dateComponents minute] + 1;
+        int hour = [dateComponents hour];
+        notificationDate = [self getDate:0 hour:hour minute:minute second:0];
+        invisibleNotiOneDate = [self getDate:0 hour:hour minute:minute second:30];
+        invisibleNotiTwoDate = [self getDate:0 hour:hour minute:minute + 1 second:0];
+    }else{
+        NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:[NSDate date]];
+        int minute = [dateComponents minute];
+        int hour = [dateComponents hour];
+        
+        if(alarmHour >= hour && alarmMinute > minute){
+            alarmNewDay = 0;
+        }else
+            alarmNewDay = 1;
+        
+        notificationDate = [self getDate:alarmNewDay hour:alarmHour minute:alarmMinute second:0];
+        invisibleNotiOneDate = [self getDate:alarmNewDay hour:alarmHour minute:alarmMinute second:30];
+        invisibleNotiTwoDate = [self getDate:alarmNewDay hour:alarmHour minute:alarmMinute + 1 second:0];        
+    }
     if(!localNotif){
         [[UIApplication sharedApplication] cancelAllLocalNotifications];
         localNotif = [[UILocalNotification alloc] init];
@@ -480,7 +503,7 @@
         [numberImage setFrame:frame];
         positionValue += frame.size.width - 13;
         if(i == 2){
-            positionValue += 10;
+            positionValue += 7;
         }
         [_digitalAlarmView addSubview:numberImage];
     }
