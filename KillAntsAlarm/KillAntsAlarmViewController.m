@@ -346,6 +346,13 @@
 -(void)cancelAlarmMusic{
     if(_player.playing){
         [_player stop];
+        alarmHandlerTouchedFlag = NO;
+        _digitalAlarmView.alpha = 0.3;
+        _antImageView.alpha = 0.3;
+        _ocdBallImageView.alpha = 0.3;
+        _alarmHandlerImageView.image = _alarmHandlerGray;
+        [self saveElementsToAlarmHandlerFile:@"YES" forKey:@"isAlarmHandlerGray"];
+        
     }
 }
 
@@ -403,7 +410,7 @@
     [[UIApplication sharedApplication] scheduleLocalNotification:localNotif];
     [[UIApplication sharedApplication] scheduleLocalNotification:invisibleNotiOne];
     [[UIApplication sharedApplication] scheduleLocalNotification:invisibleNotiTwo];
-    [clockView setAlarm:alarmHour minute:alarmMinute];
+//    [clockView setAlarm:alarmHour minute:alarmMinute];
 }
 
 -(void)initClockView{

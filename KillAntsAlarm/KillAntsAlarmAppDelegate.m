@@ -30,15 +30,26 @@
         KillAntsAlarmViewController *root = [storyboard instantiateViewControllerWithIdentifier:@"root"];
         
         RevealController *revealController = [[RevealController alloc] initWithFrontViewController:root rearViewController:ocdModel];
-        NSLog(@"%f,%f",revealController.view.frame.origin.y, revealController.view.frame.size.height);
+//        NSLog(@"%f,%f",revealController.view.frame.origin.y, revealController.view.frame.size.height);
         
         self.viewController = revealController;
         self.window.rootViewController = self.viewController;
+        [self.window makeKeyAndVisible];
+        
         UILocalNotification * localNotify = [launchOptions objectForKey:UIApplicationLaunchOptionsLocalNotificationKey];
         if(localNotify){
-           [self cancelLocalNotificationsAndStartAlarm];
+            [self cancelLocalNotificationsAndStartAlarm];
+        }else{
+            NSArray *array = [[UIApplication sharedApplication] scheduledLocalNotifications];
+            /*
+             3 notifications means time of alarm event won't be ready
+             2 notifications means time of alarm event hass fired
+             */
+            if([array count] <= 2 && [array count] > 0){
+                [self cancelLocalNotificationsAndStartAlarm];
+            }
         }
-        [self.window makeKeyAndVisible];    
+
     }
     
 //
@@ -65,7 +76,7 @@
      3 notifications means time of alarm event won't be ready
      2 notifications means time of alarm event hass fired
      */
-    if([array count] == 2){
+    if([array count] <= 2 && [array count] > 0){
         [self cancelLocalNotificationsAndStartAlarm];
     }
 }
@@ -76,6 +87,8 @@
     if (_antsStartViewController) {
         [_antsStartViewController restartAntsAnimation];
     }
+    
+    
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application

@@ -51,7 +51,7 @@
 }
 
 -(void)countAliveAnt{
-    NSLog(@"%d", [[self.view subviews] count]);
+//    NSLog(@"%d", [[self.view subviews] count]);
     if([[self.view subviews] count] <= 1){
         [_delegate cancelAlarmMusic];
         _isStart = NO;
