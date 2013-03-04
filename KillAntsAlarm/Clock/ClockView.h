@@ -47,6 +47,7 @@
 - (void)setSecHandImage:(CGImageRef)image;
 - (void)setClockBackgroundImage:(CGImageRef)image;
 -(void)setAlarm:(int)hour minute:(int)minute;
+- (void) updateClock:(NSTimer *)theTimer;
 -(int)getNoon;
 //to customize hands size: adjust following values in .m file
 //HOURS_HAND_LENGTH

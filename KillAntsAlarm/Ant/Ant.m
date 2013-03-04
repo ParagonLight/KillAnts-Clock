@@ -15,9 +15,9 @@
 @synthesize antDeadImage = _antDeadImage;
 static inline double radians (double degrees) {return degrees * M_PI/180;}
 
--(id)initAnt:(NSInteger)antNo{
+-(id)initAnt:(NSInteger)antNo withAntLife:(NSInteger)life{
     self = [super init];
-    
+    _life = life;
     NSString *antsHitSoundPath = [NSString stringWithFormat:@"%@%@", [[NSBundle mainBundle] resourcePath], @"/antsHit.mp3"];
     NSString *antsDieSoundPath = [NSString stringWithFormat:@"%@%@", [[NSBundle mainBundle] resourcePath], @"/antsDie.mp3"];
     NSURL *antsHitFilePath = [NSURL fileURLWithPath:antsHitSoundPath isDirectory:NO];
@@ -31,8 +31,14 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     
     
     NSMutableArray *array = [[NSMutableArray alloc] init];
-    for(int i = 0; i < 9; i ++){
-        [array addObject:[UIImage imageNamed:[NSString stringWithFormat:@"ant%d.png",i]]];
+    if(life > 1){
+        for(int i = 0; i < 9; i ++){
+            [array addObject:[UIImage imageNamed:[NSString stringWithFormat:@"redAnt%d.png",i]]];
+        }
+    }else{
+        for(int i = 0; i < 9; i ++){
+            [array addObject:[UIImage imageNamed:[NSString stringWithFormat:@"ant%d.png",i]]];
+        }
     }
     int randomHeight;
     if (iPhone5) {
@@ -63,16 +69,21 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
 }
 
 -(void)tapAnt:(UITapGestureRecognizer *)recognizer{
-    [_antImageView stopAnimating];
-    AudioServicesPlaySystemSound(antsDie);
-    dead = TRUE;
-    _antImageView.image = _antDeadImage;
-    [UIImageView animateWithDuration:1 animations:^{
-        _antImageView.alpha = 0;
-    } completion:^(BOOL finished){
-        [_antImageView removeFromSuperview];
-        [_delegate countAliveAnt];
-    }];
+    _life--;
+    if(_life < 1){
+        [_antImageView stopAnimating];
+        AudioServicesPlaySystemSound(antsDie);
+        dead = TRUE;
+        _antImageView.image = _antDeadImage;
+        [UIImageView animateWithDuration:1 animations:^{
+            _antImageView.alpha = 0;
+        } completion:^(BOOL finished){
+            [_antImageView removeFromSuperview];
+            [_delegate countAliveAnt];
+        }];
+    }else{
+        _antImageView.alpha -= 0.2;
+    }
 }
 
 -(CGFloat)calibrateRadians:(CGFloat)radians{
@@ -125,5 +136,8 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
     }];
 }
 
+-(void)setRedAnt:(NSInteger)life{
+    _life = life;
+}
 
 @end

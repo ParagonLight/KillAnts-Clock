@@ -212,7 +212,6 @@ float Degrees2Radians(float degrees) { return degrees * M_PI / 180; }
         [self.layer addSublayer:containerLayer];
         [self updateClock:nil];
 	}
-    
 	return self;
 }
 

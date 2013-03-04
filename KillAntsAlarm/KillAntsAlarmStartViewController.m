@@ -57,7 +57,7 @@
         _isStart = NO;
         KillAntsAlarmAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
         appDelegate.antsStartViewController = nil;
-        [self dismissModalViewControllerAnimated:YES];
+        [self dismissViewControllerAnimated:YES completion:nil];
     }
 }
 
@@ -76,7 +76,12 @@
 -(void)initAnts{
     _ants = [[NSMutableArray alloc] init];
     for(int i = 0; i < ANT_NUM; i ++){
-        Ant *ant = [[Ant alloc] initAnt:i];
+        int life;
+        if(i % 7 == 6)
+            life = 4;
+        else
+            life = 1;
+        Ant *ant = [[Ant alloc] initAnt:i withAntLife:life];
         ant.delegate = self;
         [_ants addObject:ant];
         [ant animateMethod];
