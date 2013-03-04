@@ -243,12 +243,8 @@
     NSString *shortSoundPath = [NSString stringWithFormat:@"%@%@", [[NSBundle mainBundle] resourcePath], @"/shortSound.wav"];
     NSURL *shortSoundFilePath = [NSURL fileURLWithPath:shortSoundPath isDirectory:NO];
     
-//    NSString *alarmSoundPath = [NSString stringWithFormat:@"%@%@", [[NSBundle mainBundle] resourcePath], @"/music.wav"];
-//    NSURL *alarmSoundFilePath = [NSURL fileURLWithPath:alarmSoundPath isDirectory:NO];
-    
     //Use audio sevices to create the sound
     AudioServicesCreateSystemSoundID((__bridge CFURLRef)shortSoundFilePath, &shortSound);
-//    AudioServicesCreateSystemSoundID((__bridge CFURLRef)alarmSoundFilePath, &alarmSound);
     
     AudioSessionInitialize (NULL, NULL, NULL, NULL);
     AudioSessionSetActive(true);

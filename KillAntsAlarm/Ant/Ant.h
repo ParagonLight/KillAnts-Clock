@@ -21,6 +21,8 @@
     CGFloat lastAngle;
     CGContextRef context;
     BOOL dead;
+    SystemSoundID antsDie;
+    SystemSoundID antsHit;
 }
 @property (nonatomic, strong) UITapGestureRecognizer *tapGestureRecognizer;
 @property (nonatomic, strong) id <AntDelegate> delegate;

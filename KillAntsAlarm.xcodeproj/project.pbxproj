@@ -368,6 +368,7 @@
 		74518A4716CE2C4600133217 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				746B721A16DF4A7D005B5C34 /* Music */,
 				74518A6A16CE2C6E00133217 /* Images */,
 			);
 			name = Resources;
@@ -394,7 +395,6 @@
 		74518A6A16CE2C6E00133217 /* Images */ = {
 			isa = PBXGroup;
 			children = (
-				746B721A16DF4A7D005B5C34 /* Music */,
 				746B71A816DF4A38005B5C34 /* Backgrounds */,
 				746B71AB16DF4A38005B5C34 /* Icons */,
 				746B71B616DF4A38005B5C34 /* Introduction */,

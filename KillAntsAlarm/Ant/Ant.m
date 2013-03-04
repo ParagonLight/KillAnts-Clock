@@ -17,6 +17,19 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
 
 -(id)initAnt:(NSInteger)antNo{
     self = [super init];
+    
+    NSString *antsHitSoundPath = [NSString stringWithFormat:@"%@%@", [[NSBundle mainBundle] resourcePath], @"/antsHit.mp3"];
+    NSString *antsDieSoundPath = [NSString stringWithFormat:@"%@%@", [[NSBundle mainBundle] resourcePath], @"/antsDie.mp3"];
+    NSURL *antsHitFilePath = [NSURL fileURLWithPath:antsHitSoundPath isDirectory:NO];
+    NSURL *antsDieFilePath = [NSURL fileURLWithPath:antsDieSoundPath isDirectory:NO];
+    //Use audio sevices to create the sound
+    AudioServicesCreateSystemSoundID((__bridge CFURLRef)antsHitFilePath, &antsHit);
+    AudioServicesCreateSystemSoundID((__bridge CFURLRef)antsDieFilePath, &antsDie);
+    AudioSessionInitialize (NULL, NULL, NULL, NULL);
+    AudioSessionSetActive(true);
+
+    
+    
     NSMutableArray *array = [[NSMutableArray alloc] init];
     for(int i = 0; i < 9; i ++){
         [array addObject:[UIImage imageNamed:[NSString stringWithFormat:@"ant%d.png",i]]];
@@ -51,6 +64,7 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
 
 -(void)tapAnt:(UITapGestureRecognizer *)recognizer{
     [_antImageView stopAnimating];
+    AudioServicesPlaySystemSound(antsDie);
     dead = TRUE;
     _antImageView.image = _antDeadImage;
     [UIImageView animateWithDuration:1 animations:^{
@@ -71,12 +85,12 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
 
 
 -(void)animateMethod{
-    [UIImageView animateWithDuration:0.5 delay:0.0f options:UIViewAnimationOptionCurveLinear | UIViewAnimationOptionAllowUserInteraction animations:^{
+    [UIImageView animateWithDuration:0.1 delay:0.0f options:UIViewAnimationOptionCurveLinear | UIViewAnimationOptionAllowUserInteraction animations:^{
         @synchronized(self){
             int x;
             CGFloat angle = -45 + rand() % 90;
-            int base = 20 - abs(angle)/ 46 * 20;
-            x = 20 + abs(rand() % base);
+            int base = 10 - abs(angle)/ 46 * 10;
+            x = 10 + abs(rand() % base);
             
             CGAffineTransform newTransform3 = CGAffineTransformRotate(_antImageView.transform, radians(angle));
             newTransform3.tx += x * -sin(radians(lastAngle));
