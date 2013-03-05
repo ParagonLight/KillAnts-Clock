@@ -32,4 +32,5 @@
 -(void)setOcdON:(BOOL)ocdOn;
 -(void)startAlarm;
 -(void)setAlarm:(BOOL)now;
+-(BOOL)isPlaying;
 @end

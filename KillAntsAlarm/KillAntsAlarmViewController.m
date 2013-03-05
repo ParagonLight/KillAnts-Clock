@@ -17,6 +17,7 @@
     CGPoint previousPoint;
     //    CGPoint currentPoint;
     BOOL alarmHandlerTouchedFlag;
+    BOOL playing;
     BOOL _ocdOn;
     int isAfternoon;
     int alarmHour;
@@ -200,6 +201,7 @@
     if(recognizer.state == UIGestureRecognizerStateEnded){
         if(!alarmHandlerTouchedFlag){
             alarmHandlerTouchedFlag = YES;
+            _antImageView.userInteractionEnabled = YES;
             _digitalAlarmView.alpha = 1;
             _antImageView.alpha = 1;
             _ocdBallImageView.alpha = 1;
@@ -207,8 +209,10 @@
             [self saveElementsToAlarmHandlerFile:@"NO" forKey:@"isAlarmHandlerGray"];
         }else{
             alarmHandlerTouchedFlag = NO;
+            _antImageView.userInteractionEnabled = NO;
             if(_player.playing)
                 [_player stop];
+            playing = NO;
             _digitalAlarmView.alpha = 0.3;
             _antImageView.alpha = 0.3;
             _ocdBallImageView.alpha = 0.3;
@@ -358,9 +362,14 @@
     
 }
 
+-(BOOL)isPlaying{
+    return playing;
+}
+
 -(void)startAlarm{
     if(!_player.playing){
         [_player play];
+        playing = YES;
         UIStoryboard *storyboard = [UIStoryboard storyboardWithName:@"MainStoryboard" bundle:nil];
         KillAntsAlarmStartViewController *antStartViewController = [storyboard instantiateViewControllerWithIdentifier:@"alarmStart"];
         antStartViewController.delegate = self;
@@ -371,6 +380,7 @@
 -(void)cancelAlarmMusic{
     if(_player.playing){
         [_player stop];
+        playing = NO;
         alarmHandlerTouchedFlag = NO;
         _digitalAlarmView.alpha = 0.3;
         _antImageView.alpha = 0.3;
@@ -397,9 +407,9 @@
     NSDate *invisibleNotiTwoDate;
     NSDate *invisibleNotiOneDate;
     NSDate *notificationDate;
-    if (now && !_player.playing) {
+    if (now && ! [self isPlaying]) {
         return;
-    }else if(now && _player.playing){
+    }else if(now && [self isPlaying]){
         NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:[NSDate date]];
         int minute = [dateComponents minute] + 1;
         int hour = [dateComponents hour];
@@ -608,9 +618,9 @@
                 else
                     showTime = (showTime / OCD_INTERVAL) * OCD_INTERVAL;
             }
-            if(showTime == TOTAL_TIME)
-                showTime = 0;
         }
+        if(showTime == TOTAL_TIME)
+            showTime = 0;
         alarmHour = showTime / 60;
         alarmMinute = showTime % 60;
         if(currentHour == 23 && alarmHour == 0){
