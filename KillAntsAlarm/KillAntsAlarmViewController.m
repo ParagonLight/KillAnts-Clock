@@ -89,7 +89,7 @@
     if(dictionary != nil && radiansString != nil){
         currentAngle = radiansString.floatValue;
         [self initDigitalAlarmViews];
-        [self setDigitalAlarmViaImage:[self convertRadiansToTimeWithNoCalibrate:[self calibrateRadians:currentAngle]]];
+        [self setDigitalAlarmWithOCDCalibration:[self convertRadiansToTimeWithNoCalibrate:[self calibrateRadians:currentAngle]]];
         [self setAlarmHandlerImage];
         CGAffineTransform newTransform3 = CGAffineTransformRotate(_container.transform, currentAngle + M_PI);
         _container.transform = newTransform3;
@@ -145,7 +145,7 @@
     CGFloat radians = currentAngle;
     [self initDigitalAlarmViews];
     CGFloat lastTime = [self convertRadiansToTime:radians];
-    [self setDigitalAlarmViaImage:lastTime];
+    [self setDigitalAlarmWithOCDCalibration:lastTime];
     [self setAlarmHandlerImage];
 }
 
@@ -296,7 +296,7 @@
                     currentAngle = atan2(_container.transform.b, _container.transform.a) + M_PI;
 //                    NSLog(@"%f,%f",currentAngle, [self calibrateRadians:currentAngle]);
                     CGFloat currentTime = [self convertRadiansToTimeWithNoCalibrate:[self calibrateRadians:currentAngle]];
-                    [self setDigitalAlarmViaImage:ceil(currentTime)];
+                    [self setDigitalAlarmWithOCDCalibration:ceil(currentTime)];
                 }
             previousPoint = curPoint;
             }
@@ -572,9 +572,6 @@
         NSMutableArray *timeArray = [[NSMutableArray alloc] init];
         alarmHour = (int)time / 60;
         alarmMinute = (int)time % 60;
-//        if(isAfternoon == 1){
-//            alarmHour += 12;
-//        }
         if(alarmHour > 9){
             [timeArray addObject:[NSNumber numberWithInt: alarmHour / 10]];
             [timeArray addObject:[NSNumber numberWithInt: alarmHour % 10]];
@@ -601,25 +598,17 @@
 }
 
 
--(void)setDigitalAlarmViaImage:(int)time{
+-(void)setDigitalAlarmWithOCDCalibration:(int)time{
     @synchronized(self){
-//        NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:[NSDate date]];
-//        currentMinute = [dateComponents minute];
-//        currentHour = [dateComponents hour];
-//        int noon = 0;
-//        if (currentHour >= 12) {
-//            currentHour -= 12;
-//            noon = 1;
-//        }
         int showTime = time;
         if(_ocdOn){
-            if (showTime % 5 != 0) {
-                if(showTime % 5 > 2)
-                    showTime = (showTime / 5 + 1) * 5;
+            if (showTime % OCD_INTERVAL != 0) {
+                if(showTime % OCD_INTERVAL > OCD_INTERVAL / 2)
+                    showTime = (showTime / OCD_INTERVAL + 1) * OCD_INTERVAL;
                 else
-                    showTime = (showTime / 5) * 5;
+                    showTime = (showTime / OCD_INTERVAL) * OCD_INTERVAL;
             }
-            if(showTime == 720)
+            if(showTime == TOTAL_TIME)
                 showTime = 0;
         }
         alarmHour = showTime / 60;
@@ -639,19 +628,6 @@
         
         NSMutableArray *timeArray = [[NSMutableArray alloc] init];
 
-//        if(alarmHour * 60 +alarmMinute > currentHour * 60 + currentMinute){
-//            if (isAfternoon == 1) {
-//                alarmHour += 12;
-//            }
-//            alarmNewDay = 0;
-//        }else if(alarmHour * 60 + alarmMinute <= currentHour * 60 + currentMinute){
-//            if (isAfternoon == 0) {
-//                alarmHour += 12;
-//                alarmNewDay = 0;
-//            }else if(isAfternoon == 1){
-//                alarmNewDay = 1;
-//            }
-//        }
         if(alarmHour > 9){
             [timeArray addObject:[NSNumber numberWithInt: alarmHour / 10]];
             [timeArray addObject:[NSNumber numberWithInt: alarmHour % 10]];
@@ -752,7 +728,7 @@
 
 
 -(void)setAlarmHandlerImage{
-    _container = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2, clockView.frame.size.height/2 + clockView.frame.origin.y, 113, 113)];
+    _container = [[UIView alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2, clockView.frame.size.height/2 + clockView.frame.origin.y, CONTAINER_WIDTH, CONTAINER_WIDTH)];
     _alarmHandlerGray = [UIImage imageNamed:@"alarmHandlerGray.png"];
     _alarmHandler = [UIImage imageNamed:@"alarmHandler.png"];
     alarmHandlerTouchedFlag = FALSE;
@@ -762,8 +738,8 @@
     CGRect frame = _alarmHandlerImageView.frame;
     frame.origin.y = _container.frame.size.width - frame.size.width/2;
     frame.origin.x = _container.frame.size.height - frame.size.height/2;
-    frame.size.height /= 2.3;
-    frame.size.width /= 2.3;
+    frame.size.height *= ALARMHANDLER_SCALE;
+    frame.size.width *= ALARMHANDLER_SCALE;
     [_alarmHandlerImageView setFrame:frame];
     _alarmHandlerImageView.userInteractionEnabled = YES;
     

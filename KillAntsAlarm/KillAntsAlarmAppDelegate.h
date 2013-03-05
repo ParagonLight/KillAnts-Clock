@@ -19,6 +19,9 @@
 #define MAX_DELTA 160
 #define INTRO_PAGES 2
 #define ANT_NUM 15
+#define CONTAINER_WIDTH 145
+#define ALARMHANDLER_SCALE 1/2.3
+#define OCD_INTERVAL 5
 
 #define iPhone5 ([UIScreen instancesRespondToSelector:@selector(currentMode)] ? CGSizeEqualToSize(CGSizeMake(640, 1136), [[UIScreen mainScreen] currentMode].size) : NO)
 #define SYSTEM_VERSION_EQUAL_TO(v)                  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
