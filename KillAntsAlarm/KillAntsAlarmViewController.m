@@ -278,9 +278,9 @@
                     }else{
                         if(_deltaAngle > (M_PI * 2 / 144) || _deltaAngle < -(M_PI * 2 / 144)){
                             if (_deltaAngle > 0) {
-                                angleDifference = (int)(angleDifference / (M_PI * 2 / 144) + 1) * (M_PI * 2 / 144);
+                                angleDifference = ([self floatToClosestInteger:angleDifference / (M_PI * 2 / 144)]  + 1) * (M_PI * 2 / 144);
                             }else{
-                                angleDifference = (int)(angleDifference / (M_PI * 2 / 144) - 1) * (M_PI * 2 / 144);
+                                angleDifference = ([self floatToClosestInteger:angleDifference / (M_PI * 2 / 144)] - 1) * (M_PI * 2 / 144);
                             }
                             _deltaAngle = 0;
                         }else{
@@ -296,10 +296,26 @@
                     currentAngle = atan2(_container.transform.b, _container.transform.a) + M_PI;
 //                    NSLog(@"%f,%f",currentAngle, [self calibrateRadians:currentAngle]);
                     CGFloat currentTime = [self convertRadiansToTimeWithNoCalibrate:[self calibrateRadians:currentAngle]];
-                    [self setDigitalAlarmViaImage:currentTime];
+                    [self setDigitalAlarmViaImage:ceil(currentTime)];
                 }
             previousPoint = curPoint;
             }
+    }
+}
+
+-(NSInteger)floatToClosestInteger:(CGFloat)floatNumber{
+    NSInteger decimal = floatNumber - (int)floatNumber;
+    if(abs(decimal) >= 0.5){
+        if(floatNumber > 0)
+            return (int)floatNumber + 1;
+        else
+            return (int)floatNumber - 1;
+    }
+    else{
+        if(floatNumber > 0)
+            return (int)floatNumber;
+        else
+            return (int)floatNumber;
     }
 }
 
@@ -492,8 +508,8 @@
             frame = numberImage.frame;
             frame.size.width /= 2.3;
             frame.size.height /= 2.3;
-            frame.origin.y += 16;
-            positionValue += 7;
+            frame.origin.y += 5;
+            positionValue -= 6;
         }else{
             numberImage = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 94/2, 121/2)];
             numberImage.tag = i;
@@ -503,7 +519,7 @@
         [numberImage setFrame:frame];
         positionValue += frame.size.width - 13;
         if(i == 2){
-            positionValue += 7;
+            positionValue -= 6;
         }
         [_digitalAlarmView addSubview:numberImage];
     }
@@ -585,7 +601,7 @@
 }
 
 
--(void)setDigitalAlarmViaImage:(CGFloat)time{
+-(void)setDigitalAlarmViaImage:(int)time{
     @synchronized(self){
 //        NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:[NSDate date]];
 //        currentMinute = [dateComponents minute];
@@ -595,8 +611,19 @@
 //            currentHour -= 12;
 //            noon = 1;
 //        }
-        alarmHour = (int)time / 60;
-        alarmMinute = (int)time % 60;
+        int showTime = time;
+        if(_ocdOn){
+            if (showTime % 5 != 0) {
+                if(showTime % 5 > 2)
+                    showTime = (showTime / 5 + 1) * 5;
+                else
+                    showTime = (showTime / 5) * 5;
+            }
+            if(showTime == 720)
+                showTime = 0;
+        }
+        alarmHour = showTime / 60;
+        alarmMinute = showTime % 60;
         if(currentHour == 23 && alarmHour == 0){
             isAfternoon = 0;
         }else if(currentHour == 11 && alarmHour == 0){
