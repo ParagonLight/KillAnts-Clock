@@ -964,12 +964,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Jingwei Xu";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "KillAntsAlarm/KillAntsAlarm-Prefix.pch";
 				INFOPLIST_FILE = "KillAntsAlarm/KillAntsAlarm-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "71FF25EE-1C2B-4013-89B8-45C633140D8D";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

@@ -40,12 +40,12 @@ static inline double radians (double degrees) {return degrees * M_PI/180;}
             [array addObject:[UIImage imageNamed:[NSString stringWithFormat:@"ant%d.png",i]]];
         }
     }
-    int randomHeight;
-    if (iPhone5) {
-        randomHeight = 0 + rand() % (568 - 0);
-    }else{
-        randomHeight = 0 + rand() % (480 - 0);
-    }
+//    int randomHeight;
+//    if (iPhone5) {
+//        randomHeight = 0 + rand() % (568 - 0);
+//    }else{
+//        randomHeight = 0 + rand() % (480 - 0);
+//    }
     dead = FALSE;
     CGRect screenBound = [[UIScreen mainScreen] bounds];
     
