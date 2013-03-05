@@ -97,6 +97,7 @@
         NSString *isGray = [dictionary objectForKey:@"isAlarmHandlerGray"];
         if([isGray isEqualToString:@"NO"]){
             alarmHandlerTouchedFlag = TRUE;
+            _antImageView.userInteractionEnabled = YES;
             _digitalAlarmView.alpha = 1;
             _antImageView.alpha = 1;
             _ocdBallImageView.alpha = 1;
@@ -165,7 +166,12 @@
 //                             _ocdBallImageView.transform = CGAffineTransformMakeTranslation(0, -68);
                          } completion:^(BOOL finished){
                              _ocdBallImageView.hidden = YES;
-                             _antImageView.userInteractionEnabled = YES;
+                             @synchronized(self){
+                                 if(alarmHandlerTouchedFlag)
+                                     _antImageView.userInteractionEnabled = YES;
+                                 else
+                                     _antImageView.userInteractionEnabled = NO;
+                             }
                          }];
     }else{
         _ocdBallImageView.hidden = NO;
@@ -181,7 +187,12 @@
                          } completion:^(BOOL finished){
                              AudioServicesPlaySystemSound(ocdSound);
                              _antImageView.image = _ocdAntImage;
-                             _antImageView.userInteractionEnabled = YES;
+                             @synchronized(self){
+                                 if(alarmHandlerTouchedFlag)
+                                     _antImageView.userInteractionEnabled = YES;
+                                 else
+                                     _antImageView.userInteractionEnabled = NO;
+                             }
                          }];
     }
     KillAntsAlarmAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
@@ -199,29 +210,31 @@
 
 -(void)toggleALarmHandler:(UITapGestureRecognizer *)recognizer{
     if(recognizer.state == UIGestureRecognizerStateEnded){
-        if(!alarmHandlerTouchedFlag){
-            alarmHandlerTouchedFlag = YES;
-            _antImageView.userInteractionEnabled = YES;
-            _digitalAlarmView.alpha = 1;
-            _antImageView.alpha = 1;
-            _ocdBallImageView.alpha = 1;
-            _alarmHandlerImageView.image = _alarmHandler;
-            [self saveElementsToAlarmHandlerFile:@"NO" forKey:@"isAlarmHandlerGray"];
-        }else{
-            alarmHandlerTouchedFlag = NO;
-            _antImageView.userInteractionEnabled = NO;
-            if(_player.playing)
-                [_player stop];
-            playing = NO;
-            _digitalAlarmView.alpha = 0.3;
-            _antImageView.alpha = 0.3;
-            _ocdBallImageView.alpha = 0.3;
-            _alarmHandlerImageView.image = _alarmHandlerGray;
-            [self saveElementsToAlarmHandlerFile:@"YES" forKey:@"isAlarmHandlerGray"];
-            if(localNotif){
-                [[UIApplication sharedApplication] cancelLocalNotification:localNotif];
-                [[UIApplication sharedApplication] cancelLocalNotification:invisibleNotiOne];
-                [[UIApplication sharedApplication] cancelLocalNotification:invisibleNotiTwo];
+        @synchronized(self){
+            if(!alarmHandlerTouchedFlag){
+                alarmHandlerTouchedFlag = YES;
+                _antImageView.userInteractionEnabled = YES;
+                _digitalAlarmView.alpha = 1;
+                _antImageView.alpha = 1;
+                _ocdBallImageView.alpha = 1;
+                _alarmHandlerImageView.image = _alarmHandler;
+                [self saveElementsToAlarmHandlerFile:@"NO" forKey:@"isAlarmHandlerGray"];
+            }else{
+                alarmHandlerTouchedFlag = NO;
+                _antImageView.userInteractionEnabled = NO;
+                if(_player.playing)
+                    [_player stop];
+                playing = NO;
+                _digitalAlarmView.alpha = 0.3;
+                _antImageView.alpha = 0.3;
+                _ocdBallImageView.alpha = 0.3;
+                _alarmHandlerImageView.image = _alarmHandlerGray;
+                [self saveElementsToAlarmHandlerFile:@"YES" forKey:@"isAlarmHandlerGray"];
+                if(localNotif){
+                    [[UIApplication sharedApplication] cancelLocalNotification:localNotif];
+                    [[UIApplication sharedApplication] cancelLocalNotification:invisibleNotiOne];
+                    [[UIApplication sharedApplication] cancelLocalNotification:invisibleNotiTwo];
+                }
             }
         }
     }
@@ -382,6 +395,7 @@
         [_player stop];
         playing = NO;
         alarmHandlerTouchedFlag = NO;
+        _antImageView.userInteractionEnabled = NO;
         _digitalAlarmView.alpha = 0.3;
         _antImageView.alpha = 0.3;
         _ocdBallImageView.alpha = 0.3;
@@ -443,7 +457,7 @@
     [localNotif setFireDate:notificationDate];
     [localNotif setRepeatInterval:0];
     [localNotif setAlertAction:@"Alarm"];
-    [localNotif setAlertBody:@"Get UP!"];
+    [localNotif setAlertBody:@"Ants are coming，get up!"];
 
     [invisibleNotiOne setFireDate:invisibleNotiOneDate];
     [invisibleNotiOne setRepeatInterval:NSMinuteCalendarUnit];
@@ -546,6 +560,7 @@
     _antImage = [UIImage imageNamed:@"ant.png"];
     _ocdBall = [UIImage imageNamed:@"ocd.png"];
     _ocdBallImageView = [[UIImageView alloc] initWithImage:_ocdBall];
+    _ocdBallImageView.alpha = 0.3;
     frame = _ocdBallImageView.frame;
     frame.origin.x = lineImageView.frame.origin.x + 73;
     frame.size.width /= 2;
@@ -564,7 +579,7 @@
     
     _antImageView.tag = ANTIMAGE_TAG;
     _antImageView.alpha = 0.3;
-    _antImageView.userInteractionEnabled = YES;
+    _antImageView.userInteractionEnabled = NO;
     frame = _antImageView.frame;
     frame.origin.y = lineImageView.frame.origin.y - 8;
     frame.origin.x = lineImageView.frame.origin.x + 56;
