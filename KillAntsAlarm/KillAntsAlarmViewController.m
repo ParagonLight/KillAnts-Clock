@@ -75,6 +75,7 @@
     NSString *radiansString = [dictionary objectForKey:@"lastPosition"];
     NSString *ocdOnString = [dictionary objectForKey:@"ocdOn"];
     NSString *isAfternoonString = [dictionary objectForKey:@"isAfternoon"];
+    NSString *isAlarmInTimeString = [dictionary objectForKey:@"isAlarmInTime"];
     if([isAfternoonString isEqualToString:@"YES"])
         isAfternoon = 1;
     else
@@ -87,10 +88,18 @@
         _ocdOn = NO;
         firstOcdOn = NO;
     }
+    
+    if([isAlarmInTimeString isEqualToString:@"YES"]){
+        playing = YES;
+    }
+    else{
+        playing = NO;
+    }
+    
     if(dictionary != nil && radiansString != nil){
         currentAngle = radiansString.floatValue;
         [self initDigitalAlarmViews];
-        [self setDigitalAlarmWithOCDCalibration:[self convertRadiansToTimeWithNoCalibrate:[self calibrateRadians:currentAngle]]];
+        [self setDigitalAlarmWithOCDCalibration:ceil([self convertRadiansToTimeWithNoCalibrate:[self calibrateRadians:currentAngle]])];
         [self setAlarmHandlerImage];
         CGAffineTransform newTransform3 = CGAffineTransformRotate(_container.transform, currentAngle + M_PI);
         _container.transform = newTransform3;
@@ -147,7 +156,7 @@
     CGFloat radians = currentAngle;
     [self initDigitalAlarmViews];
     CGFloat lastTime = [self convertRadiansToTime:radians];
-    [self setDigitalAlarmWithOCDCalibration:lastTime];
+    [self setDigitalAlarmWithOCDCalibration:ceil(lastTime)];
     [self setAlarmHandlerImage];
 }
 
@@ -375,8 +384,24 @@
     
 }
 
--(BOOL)isPlaying{
+-(void)getIsAlarmInTimeValueFromFile{
+    KillAntsAlarmAppDelegate *appDelegate = [[UIApplication sharedApplication] delegate];
+    NSDictionary *dictionary = [appDelegate getInfoFromFile:@"alarmHandler"];
+    NSString *isAlarmInTimeString = [dictionary objectForKey:@"isAlarmInTime"];
+    if([isAlarmInTimeString isEqualToString:@"YES"]){
+        playing = YES;
+    }
+    else{
+        playing = NO;
+    }
+}
+
+-(BOOL)isAlarmInTime{
     return playing;
+}
+
+-(BOOL)isPlaying{
+    return _player.playing;
 }
 
 -(void)startAlarm{
@@ -389,6 +414,30 @@
         [self presentModalViewController:antStartViewController animated:YES];
     }
 }
+
+
+//this method used to stop alarm when app is into background
+-(void)pauseAlarm{
+    if(_player.playing){
+        [_player pause];
+    }
+}
+
+-(void)stopAlarm{
+    if(_player.playing){
+        [_player stop];
+        [self saveElementsToAlarmHandlerFile:[NSString stringWithFormat:@"YES"] forKey:@"isAlarmInTime"];
+    }else{
+        [self saveElementsToAlarmHandlerFile:[NSString stringWithFormat:@"NO"] forKey:@"isAlarmInTime"];
+    }
+}
+
+-(void)continueAlarm{
+    if(!_player.playing){
+        [_player play];
+    }
+}
+
 
 -(void)cancelAlarmMusic{
     if(_player.playing){
@@ -421,15 +470,16 @@
     NSDate *invisibleNotiTwoDate;
     NSDate *invisibleNotiOneDate;
     NSDate *notificationDate;
-    if (now && ! [self isPlaying]) {
+    if (now && ! [self isAlarmInTime]) {
         return;
-    }else if(now && [self isPlaying]){
+    }else if(now && [self isAlarmInTime]){
         NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:[NSDate date]];
-        int minute = [dateComponents minute] + 1;
+        int minute = [dateComponents minute];
         int hour = [dateComponents hour];
-        notificationDate = [self getDate:0 hour:hour minute:minute second:0];
-        invisibleNotiOneDate = [self getDate:0 hour:hour minute:minute second:30];
-        invisibleNotiTwoDate = [self getDate:0 hour:hour minute:minute + 1 second:0];
+        int second = [dateComponents second] + 8;
+        notificationDate = [self getDate:0 hour:hour minute:minute second:second];
+        invisibleNotiOneDate = [self getDate:0 hour:hour minute:minute second:second + 30];
+        invisibleNotiTwoDate = [self getDate:0 hour:hour minute:minute + 1 second:second];
     }else{
         NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:(NSHourCalendarUnit | NSMinuteCalendarUnit | NSSecondCalendarUnit) fromDate:[NSDate date]];
         int minute = [dateComponents minute];
@@ -444,16 +494,19 @@
         invisibleNotiOneDate = [self getDate:alarmNewDay hour:alarmHour minute:alarmMinute second:30];
         invisibleNotiTwoDate = [self getDate:alarmNewDay hour:alarmHour minute:alarmMinute + 1 second:0];        
     }
+    
+    [[UIApplication sharedApplication] cancelAllLocalNotifications];
     if(!localNotif){
-        [[UIApplication sharedApplication] cancelAllLocalNotifications];
+
         localNotif = [[UILocalNotification alloc] init];
         invisibleNotiOne = [[UILocalNotification alloc] init];
         invisibleNotiTwo = [[UILocalNotification alloc] init];
-    }else{
-        [[UIApplication sharedApplication] cancelLocalNotification:localNotif];
-        [[UIApplication sharedApplication] cancelLocalNotification:invisibleNotiOne];
-        [[UIApplication sharedApplication] cancelLocalNotification:invisibleNotiTwo];
     }
+//    else{
+//        [[UIApplication sharedApplication] cancelLocalNotification:localNotif];
+//        [[UIApplication sharedApplication] cancelLocalNotification:invisibleNotiOne];
+//        [[UIApplication sharedApplication] cancelLocalNotification:invisibleNotiTwo];
+//    }
     [localNotif setFireDate:notificationDate];
     [localNotif setRepeatInterval:0];
     [localNotif setAlertAction:@"Alarm"];

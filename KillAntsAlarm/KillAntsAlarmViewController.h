@@ -31,6 +31,11 @@
 @property (strong, nonatomic) AVAudioPlayer *player;
 -(void)setOcdON:(BOOL)ocdOn;
 -(void)startAlarm;
+-(void)continueAlarm;
+-(void)pauseAlarm;
+-(void)stopAlarm;
 -(void)setAlarm:(BOOL)now;
 -(BOOL)isPlaying;
+-(BOOL)isAlarmInTime;
+-(void)getIsAlarmInTimeValueFromFile;
 @end

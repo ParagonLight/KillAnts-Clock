@@ -45,7 +45,7 @@
              3 notifications means time of alarm event won't be ready
              2 notifications means time of alarm event hass fired
              */
-            if([array count] <= 2 && [array count] > 0){
+            if(([array count] <= 2 && [array count] > 0) || ([array count] == 3 && [root isAlarmInTime])){
                 [self cancelLocalNotificationsAndStartAlarm];
             }
         }
@@ -60,12 +60,20 @@
 {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.
+//    KillAntsAlarmViewController *frontViewcontroller = _viewController.frontViewController;
+//    if([frontViewcontroller isPlaying]  && [frontViewcontroller isAlarmInTime]){
+//        [frontViewcontroller pauseAlarm];
+//        [frontViewcontroller setAlarm:YES];
+//    }
 }
 
 - (void)applicationDidEnterBackground:(UIApplication *)application
 {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later. 
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    KillAntsAlarmViewController *frontViewcontroller = _viewController.frontViewController;
+    [frontViewcontroller setAlarm:YES];
+    [frontViewcontroller stopAlarm];
 }
 
 - (void)applicationWillEnterForeground:(UIApplication *)application
@@ -76,7 +84,9 @@
      3 notifications means time of alarm event won't be ready
      2 notifications means time of alarm event hass fired
      */
-    if([array count] <= 2 && [array count] > 0){
+    KillAntsAlarmViewController *frontViewcontroller = _viewController.frontViewController;
+        [frontViewcontroller getIsAlarmInTimeValueFromFile];
+    if(([array count] <= 2 && [array count] > 0) || ([array count] == 3 && [frontViewcontroller isAlarmInTime])){
         [self cancelLocalNotificationsAndStartAlarm];
     }
 }
@@ -87,21 +97,28 @@
     if (_antsStartViewController) {
         [_antsStartViewController restartAntsAnimation];
     }
+    KillAntsAlarmViewController *frontViewcontroller = _viewController.frontViewController;
+    if(![frontViewcontroller isPlaying] && [frontViewcontroller isAlarmInTime]){
+        [frontViewcontroller continueAlarm];
+    }
+    
     
     
 }
 
-- (void)applicationWillTerminate:(UIApplication *)application
-{
-    KillAntsAlarmViewController *frontViewcontroller = _viewController.frontViewController;
-    [frontViewcontroller setAlarm:YES];
-    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
-}
+//- (void)applicationWillTerminate:(UIApplication *)application
+//{
+//    KillAntsAlarmViewController *frontViewcontroller = _viewController.frontViewController;
+//    [frontViewcontroller setAlarm:YES];
+//    // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+//}
 
 -(void)cancelLocalNotificationsAndStartAlarm{
     KillAntsAlarmViewController *frontViewcontroller = _viewController.frontViewController;
     [[UIApplication sharedApplication] cancelAllLocalNotifications];
-    [frontViewcontroller startAlarm];
+    if (![frontViewcontroller isPlaying]) {
+            [frontViewcontroller startAlarm];
+    }
 }
 
 #pragma save and get information
